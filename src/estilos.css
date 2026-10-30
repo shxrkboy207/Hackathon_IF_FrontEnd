@@ -1,0 +1,752 @@
+/* ==========================================================================
+   HackFlow — todos os estilos do projeto em um único arquivo.
+   Importado uma vez em main.jsx. A ordem das seções importa: regras com a mesma
+   especificidade valem na ordem em que aparecem (as últimas vencem).
+
+   Identidade visual:
+   - Base em verde-pinheiro (alusão a Pinhais), com superfícies em camadas.
+   - Cores com significado: verde = progresso/ok, âmbar = pontos e destaque de nota,
+     coral = urgência/erro/chegada.
+   - Títulos em Bricolage Grotesque, texto em Outfit.
+   - Elemento de identidade: o "fluxo" (linha com etapas) da tela inicial e do login.
+
+   Índice:
+     - VARIÁVEIS
+     - GLOBAL
+     - FORMULÁRIO
+     - COMPONENTES: Botao, Cartao, Alerta, Selo, Item, Avatar, Logo, Navbar, Rodape,
+       Toast, Layout (link "pular"), GraficoBarras, GraficoRosca, GraficoLinha,
+       FluxoDecorativo, CartaoPerfil, LimiteDeErro, faixa de números
+     - TELAS: Login, Inicial, Painel, Confirmação, Agenda, Resultado, Ficha, Perfil
+     - MOVIMENTO REDUZIDO
+   ========================================================================== */
+
+/* ==========================================================================
+   VARIÁVEIS (cores, fontes e raios do tema)
+   ========================================================================== */
+:root {
+  --bg: #0f1f18;      /* fundo da página */
+  --nav: #0b1812;     /* barra superior */
+  --card: #16291f;    /* cartões */
+  --elev: #1f382b;    /* superfícies elevadas / trilhas */
+  --inset: #0c1913;   /* campos de formulário (afundados) */
+  --line: #2a4638;    /* bordas e divisórias */
+  --ink: #eef5ef;     /* texto principal */
+  --mut: #9bb3a4;     /* texto secundário */
+  --g: #4fd48a;       /* verde principal */
+  --gl: #a6f0c4;      /* verde claro */
+  --gd: #1f4a35;      /* verde escuro (fundos de destaque) */
+  --coral: #ff7a6b;   /* urgência, erro, chegada */
+  --ambar: #f4c15d;   /* pontos e notas */
+  --hero: #143f2b;    /* faixa de destaque */
+
+  --fonte: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fonte-titulo: 'Bricolage Grotesque', 'Outfit', system-ui, sans-serif;
+
+  --largura: 1080px;
+  --raio-g: 22px;
+  --raio-m: 14px;
+  --raio-p: 10px;
+}
+
+/* ==========================================================================
+   GLOBAL (reset, tipografia, container)
+   ========================================================================== */
+:root {
+  color-scheme: dark;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: calc(84px + env(safe-area-inset-top, 0px)); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 16px/1.5 var(--fonte);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+summary:focus-visible { outline: 2px solid var(--gl); outline-offset: 3px; }
+
+/* Container centralizado */
+.in { max-width: var(--largura); margin: 0 auto; padding: 0 20px; }
+main { max-width: var(--largura); margin: 0 auto; padding: 32px 20px 56px; min-height: 70vh; }
+main:focus { outline: none; }
+
+/* Tipografia */
+h1 { font: 700 32px/1.15 var(--fonte-titulo); letter-spacing: -.02em; margin: 0 0 6px; }
+h2 { font: 600 18px/1.3 var(--fonte-titulo); letter-spacing: -.01em; margin: 0 0 14px; }
+.sub, small { color: var(--mut); }
+small { display: block; font-size: 13.5px; }
+
+[hidden] { display: none !important; }
+
+/* ==========================================================================
+   FORMULÁRIO (label, input, erro)
+   ========================================================================== */
+label { display: block; font-weight: 500; font-size: 14px; margin: 16px 0 6px; }
+input, select, textarea {
+  width: 100%;
+  background: var(--inset);
+  border: 1px solid var(--line);
+  border-radius: var(--raio-p);
+  color: var(--ink);
+  font: inherit;
+  padding: 12px 14px;
+  transition: border-color .15s, box-shadow .15s;
+}
+input:hover, select:hover, textarea:hover { border-color: #3c6350; }
+input:focus, select:focus, textarea:focus {
+  outline: 0;
+  border-color: var(--g);
+  box-shadow: 0 0 0 3px rgba(79, 212, 138, .22);
+}
+input::placeholder, textarea::placeholder { color: #7f9a8b; }
+input:disabled { opacity: .6; cursor: not-allowed; }
+textarea { resize: vertical; }
+
+/* Caixa de formulário estreita (cadastro, projeto, avaliação...) */
+.fm { max-width: 560px; }
+/* Mensagem de erro de validação */
+.err { color: #ff9d90; font-size: 14px; font-weight: 500; margin-top: 10px; }
+
+/* ==========================================================================
+   COMPONENTE: Botao
+   ========================================================================== */
+.btn {
+  display: block;
+  width: 100%;
+  background: var(--g);
+  color: #0b1812;
+  font-weight: 600;
+  font-size: 15px;
+  border-radius: var(--raio-p);
+  padding: 13px 16px;
+  margin-top: 16px;
+  transition: filter .15s, transform .1s, background .15s;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: .55; cursor: not-allowed; filter: none; transform: none; }
+/* Versão secundária: só contorno */
+.btn.alt { background: transparent; color: var(--g); border: 1px solid var(--g); }
+.btn.alt:hover { background: rgba(79, 212, 138, .1); filter: none; }
+
+/* ==========================================================================
+   COMPONENTE: Cartao
+   ========================================================================== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--raio-m);
+  padding: 22px;
+}
+
+/* ==========================================================================
+   COMPONENTE: Alerta
+   ========================================================================== */
+.note {
+  border-radius: var(--raio-p);
+  border-left: 3px solid var(--coral);
+  padding: 12px 14px;
+  margin-top: 14px;
+  font-size: 15px;
+  background: rgba(255, 122, 107, .12);
+  color: #ffc2b9;
+}
+.note.ok { border-left-color: var(--g); background: rgba(79, 212, 138, .12); color: var(--gl); }
+.note.t { border-left-color: var(--gl); background: var(--gd); color: var(--gl); }
+
+/* ==========================================================================
+   COMPONENTE: Selo (etiqueta de status)
+   ========================================================================== */
+.pill {
+  display: inline-block;
+  flex: none;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 99px;
+  padding: 3px 12px;
+  background: rgba(255, 122, 107, .16);
+  color: #ff9d90;
+  transition: filter .15s;
+}
+.pill.ok { background: rgba(79, 212, 138, .16); color: var(--g); }
+.pill.neutro { background: var(--elev); color: var(--mut); }
+a.pill:hover { filter: brightness(1.2); }
+
+/* ==========================================================================
+   COMPONENTE: Item (linha de lista)
+   ========================================================================== */
+.it { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.it:last-child { border: 0; }
+.it > div { flex: 1; min-width: 0; }
+.it b { font-weight: 500; }
+/* Aviso urgente: faixa coral à esquerda */
+.it-urgente { box-shadow: inset 3px 0 0 var(--coral); padding-left: 14px; }
+
+/* ==========================================================================
+   COMPONENTE: Avatar
+   ========================================================================== */
+.avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--gd);
+  color: var(--gl);
+  font: 700 14px var(--fonte-titulo);
+}
+.avatar.g {
+  width: 96px;
+  height: 96px;
+  font-size: 34px;
+  margin: 0 0 16px;
+  box-shadow: 0 0 0 3px var(--card), 0 0 0 5px var(--g);
+}
+
+/* ==========================================================================
+   COMPONENTE: Logo
+   ========================================================================== */
+.logo {
+  font: italic 800 24px var(--fonte-titulo);
+  letter-spacing: -.03em;
+  color: var(--g);
+  margin-right: 8px;
+}
+.logo i { color: var(--gl); }
+
+/* ==========================================================================
+   COMPONENTE: Navbar
+   ========================================================================== */
+.nav {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  background: rgba(11, 24, 18, .9);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-home { border-top: 2px solid var(--coral); }
+.nav .in { display: flex; align-items: center; gap: 14px; min-height: 64px; }
+
+/* Menu de links (rola na horizontal em telas pequenas) */
+.links { display: flex; gap: 2px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.links::-webkit-scrollbar { display: none; }
+.links a, .logn {
+  position: relative;
+  padding: 9px 14px;
+  border-radius: 8px;
+  color: var(--mut);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color .15s, background .15s;
+}
+.links a:hover, .logn:hover { color: var(--ink); background: rgba(255, 255, 255, .04); }
+.links a.on { color: var(--ink); }
+.links a.on::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--g);
+}
+.logn { margin-left: auto; }
+
+/* Busca (desativada por enquanto) */
+.sr {
+  display: flex; align-items: center; gap: 8px;
+  height: 42px; width: 230px; margin: 0; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: var(--raio-p);
+  background: var(--inset);
+  color: var(--mut);
+}
+.sr input { background: none; border: 0; box-shadow: none; padding: 0; width: 100%; font-size: 14px; }
+.sr input:disabled { opacity: 1; cursor: not-allowed; }
+
+/* Avatar que leva ao perfil */
+.av {
+  flex: none;
+  display: grid; place-items: center;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--g);
+  color: #0b1812;
+  font-weight: 700;
+  font-size: 14px;
+  transition: box-shadow .15s;
+}
+.av:hover, .av.on { box-shadow: 0 0 0 3px var(--nav), 0 0 0 5px var(--g); }
+
+@media (max-width: 860px) {
+  .sr { display: none; }
+  .links a { padding: 9px 10px; }
+}
+@media (max-width: 520px) {
+  .nav .in { gap: 8px; }
+  .logo { font-size: 21px; margin-right: 2px; }
+}
+
+/* ==========================================================================
+   COMPONENTE: Rodape
+   ========================================================================== */
+footer {
+  border-top: 1px solid var(--line);
+  max-width: var(--largura);
+  margin: 0 auto;
+  padding: 24px 20px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--mut);
+  font-size: 14px;
+}
+footer a { margin-left: 16px; font-weight: 500; transition: color .15s; }
+footer a:hover { color: var(--ink); }
+footer .logo { font-size: 18px; margin: 0 6px 0 0; }
+
+/* ==========================================================================
+   COMPONENTE: Toast
+   ========================================================================== */
+.toast-area {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  pointer-events: none;
+  z-index: 60;
+}
+.toast {
+  max-width: 520px;
+  background: var(--gl);
+  color: #0b1812;
+  font-weight: 600;
+  padding: 11px 18px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+  animation: toast-entrada .2s ease-out;
+}
+@keyframes toast-entrada {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ==========================================================================
+   COMPONENTE: Layout (link "Pular para o conteúdo")
+   ========================================================================== */
+.pular {
+  position: absolute;
+  left: 12px;
+  top: -64px;
+  z-index: 70;
+  background: var(--g);
+  color: #0b1812;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 8px;
+}
+.pular:focus { top: calc(8px + env(safe-area-inset-top, 0px)); }
+
+/* ==========================================================================
+   COMPONENTE: GraficoBarras
+   ========================================================================== */
+.br { display: flex; align-items: center; gap: 10px; margin: 14px 0; font-size: 13px; color: var(--mut); }
+.br span { width: 120px; flex: none; }
+.barra { height: 22px; border-radius: 5px; background: #2f9a63; }
+.barra.lider { background: var(--gl); }
+.br b { color: var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+/* ==========================================================================
+   COMPONENTE: GraficoRosca
+   ========================================================================== */
+.dn { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.rosca-valor { fill: var(--ink); font: 700 26px var(--fonte-titulo); }
+.lg div { display: flex; align-items: center; gap: 8px; font-size: 14px; margin: 5px 0; }
+.lg i { width: 10px; height: 10px; border-radius: 3px; }
+
+/* ==========================================================================
+   COMPONENTE: GraficoLinha
+   ========================================================================== */
+.grafico-linha text { font-family: var(--fonte); font-size: 11px; }
+.gl-grade { stroke: var(--line); fill: none; }
+.gl-eixo { fill: var(--mut); stroke: none; }
+.gl-area { fill: var(--g); fill-opacity: .16; }
+.gl-linha { fill: none; stroke: var(--g); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.gl-ponto { fill: var(--card); stroke: var(--g); stroke-width: 2; }
+.gl-pico { fill: var(--ambar); font-weight: 700; font-size: 12px; }
+
+/* ==========================================================================
+   COMPONENTE: FluxoDecorativo (a linha com etapas, desenhada uma vez)
+   ========================================================================== */
+.fluxo { display: block; pointer-events: none; }
+.fluxo-linha {
+  fill: none;
+  stroke: var(--g);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  animation: fluxo-desenhar 1.8s cubic-bezier(.3, .6, .2, 1) both;
+}
+.fluxo-no {
+  fill: var(--hero);
+  stroke: var(--g);
+  stroke-width: 3;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: fluxo-surgir .45s ease-out both;
+}
+.fluxo-fim { stroke: var(--coral); }
+.fluxo-no:nth-of-type(1) { animation-delay: .05s; }
+.fluxo-no:nth-of-type(2) { animation-delay: .65s; }
+.fluxo-no:nth-of-type(3) { animation-delay: 1.2s; }
+.fluxo-no:nth-of-type(4) { animation-delay: 1.7s; }
+@keyframes fluxo-desenhar { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes fluxo-surgir { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
+
+/* ==========================================================================
+   COMPONENTE: CartaoPerfil (tela inicial)
+   ========================================================================== */
+.pf { text-align: center; }
+.pf .avatar.g { margin: 0 auto 14px; }
+.st { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 18px 0; }
+.st div { background: var(--inset); border-radius: 10px; padding: 12px 4px; }
+.st b { display: block; font: 700 22px var(--fonte-titulo); }
+.st small { font-size: 12.5px; }
+.pr { display: flex; justify-content: space-between; color: var(--mut); font-size: 14px; margin-bottom: 8px; }
+.bar { height: 8px; border-radius: 99px; background: var(--elev); overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 99px; background: var(--g); }
+.lk { display: block; margin: 20px auto 0; color: var(--g); font-weight: 600; }
+.lk:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* ==========================================================================
+   COMPONENTE: LimiteDeErro
+   ========================================================================== */
+.erro-geral { max-width: 480px; margin: 18vh auto 0; padding: 0 20px; text-align: center; }
+
+/* ==========================================================================
+   COMPONENTE: faixa de números (painel e perfil)
+   Truque: o fundo é a cor da linha e o espaço (gap) de 1px entre as células vira divisória,
+   funcionando em qualquer número de colunas.
+   ========================================================================== */
+.faixa {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin: 24px 0;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--raio-m);
+  overflow: hidden;
+}
+.faixa.tres { grid-template-columns: repeat(3, 1fr); margin: 0; }
+.faixa .kpi { border: 0; border-radius: 0; padding: 22px; }
+.kpi b { display: block; font: 700 38px/1 var(--fonte-titulo); letter-spacing: -.02em; }
+.kpi small { font-size: 14px; margin-top: 8px; }
+.kpi-pontos b { color: var(--ambar); }
+
+@media (max-width: 860px) {
+  .faixa { grid-template-columns: repeat(2, 1fr); }
+  .faixa.tres { grid-template-columns: repeat(3, 1fr); }
+  .faixa.tres .kpi { padding: 18px 14px; }
+  .faixa.tres .kpi b { font-size: 28px; }
+}
+@media (max-width: 520px) {
+  .faixa, .faixa.tres { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   TELA: TelaDeLogin
+   ========================================================================== */
+.login {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap: 56px;
+  align-items: center;
+  min-height: 62vh;
+}
+.login-lema {
+  font: 700 clamp(30px, 4.4vw, 48px)/1.08 var(--fonte-titulo);
+  letter-spacing: -.03em;
+  max-width: 14ch;
+  margin: 0 0 16px;
+}
+.login-marca p:not(.login-lema) { color: var(--mut); max-width: 42ch; margin: 0 0 28px; font-size: 17px; }
+.login-marca .fluxo { width: min(100%, 400px); }
+.login-marca .fluxo-no { fill: var(--bg); }
+.lgn { width: 100%; max-width: 420px; margin: 0 auto; padding: 30px; }
+.lgn h1 { font-size: 26px; }
+
+/* Campo de senha com o botão "Mostrar" dentro */
+.pw { position: relative; }
+.pw input { padding-right: 84px; }
+.pw button { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--g); font-weight: 600; font-size: 14px; }
+
+/* Linha "Manter conectado" + "Esqueci minha senha" */
+.ck { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 18px 0; font-size: 14px; }
+.ck label { display: flex; align-items: center; gap: 8px; margin: 0; font-weight: 400; }
+.ck input { width: auto; accent-color: var(--g); }
+.sublinhado { text-decoration: underline; text-underline-offset: 3px; color: var(--mut); }
+.sublinhado:hover { color: var(--ink); }
+
+.rodape-login { text-align: center; font-size: 14px; margin: 18px 0 0; }
+.link-forte { color: var(--g); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 860px) {
+  .login { grid-template-columns: 1fr; gap: 28px; min-height: 0; }
+  .login-lema { max-width: none; }
+  .login-marca .fluxo { display: none; }
+}
+
+/* ==========================================================================
+   TELA: TelaInicial
+   ========================================================================== */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--hero);
+  border: 1px solid #1f5a3f;
+  border-radius: var(--raio-g);
+  padding: 48px 44px 40px;
+}
+.hero > :not(.hero-fluxo) { position: relative; z-index: 1; }
+.hero h1 { font-size: clamp(30px, 5.2vw, 54px); font-weight: 800; line-height: 1.04; letter-spacing: -.035em; max-width: 17ch; margin-bottom: 16px; }
+.hero p { max-width: 46ch; margin: 0 0 24px; font-size: 17px; color: #d3e8da; }
+.hero-fluxo { position: absolute; right: -8px; bottom: -6px; width: min(50%, 440px); }
+.chip {
+  display: inline-block;
+  margin: 0 8px 8px 0;
+  padding: 4px 13px;
+  border: 1px solid rgba(166, 240, 196, .35);
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gl);
+}
+
+/* Etapas numeradas ligadas por uma linha */
+.q { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; counter-reset: etapa; }
+.q li { position: relative; counter-increment: etapa; }
+.q a {
+  display: block;
+  height: 100%;
+  padding: 52px 14px 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  transition: border-color .15s, transform .15s;
+}
+.q a:hover { border-color: var(--g); transform: translateY(-2px); }
+.q a::before {
+  content: counter(etapa);
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--g);
+  background: var(--bg);
+  color: var(--g);
+  font: 700 13px var(--fonte-titulo);
+  transition: background .15s, color .15s;
+}
+.q a:hover::before { background: var(--g); color: #0b1812; }
+/* linha que liga este passo ao próximo */
+.q li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 25px;
+  left: 42px;
+  right: -28px;
+  height: 2px;
+  background: var(--line);
+}
+.q li:last-child a::before { border-color: var(--coral); color: var(--coral); }
+.q li:last-child a:hover { border-color: var(--coral); }
+.q li:last-child a:hover::before { background: var(--coral); color: #0b1812; }
+.q b { display: block; font-weight: 600; font-size: 15px; }
+.q span { font-size: 13px; color: var(--mut); }
+
+/* Três colunas */
+.g3 { display: grid; grid-template-columns: 1fr .9fr 1fr; gap: 20px; align-items: start; margin-top: 24px; }
+
+/* Caixinha de data da programação (tracejada enquanto não há data) */
+.dt {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  border: 1.5px dashed #3c6350;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  line-height: 1.1;
+}
+.it .dt b { font: 700 17px var(--fonte-titulo); color: var(--gl); }
+.dt small { font-size: 10.5px; }
+
+@media (max-width: 860px) {
+  .hero { padding: 36px 24px 32px; }
+  .hero-fluxo { opacity: .28; width: 85%; }
+  .q { grid-template-columns: 1fr 1fr; }
+  .q li::after { display: none; }
+  .g3 { grid-template-columns: 1fr 1fr; }
+  .g3 > *:nth-child(n) { grid-column: 1 / -1; }
+}
+@media (max-width: 520px) {
+  .q { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   TELA: TelaDePainel
+   ========================================================================== */
+.cg { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; }
+.rc { display: grid; gap: 16px; }
+
+@media (max-width: 860px) { .cg { grid-template-columns: 1fr; } }
+
+/* ==========================================================================
+   TELA: TelaDeConfirmacao (e QR do perfil)
+   ========================================================================== */
+.qr {
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  margin: 16px auto;
+  border: 2px dashed #3c6350;
+  border-radius: 12px;
+  color: var(--mut);
+  font-size: 13px;
+}
+
+/* ==========================================================================
+   TELA: TelaDeAgenda
+   ========================================================================== */
+.ag { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; align-items: start; }
+
+@media (max-width: 860px) { .ag { grid-template-columns: 1fr; } }
+
+/* ==========================================================================
+   TELA: TelaDeResultado
+   ========================================================================== */
+.pos {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--elev);
+  color: var(--mut);
+  font: 700 15px var(--fonte-titulo);
+}
+.pos:empty { background: none; }
+.pos-1 { background: var(--ambar); color: #2a1d00; }
+.it .nota { font: 700 20px var(--fonte-titulo); color: var(--ambar); }
+
+/* ==========================================================================
+   TELA: TelaDeFicha
+   ========================================================================== */
+.nota-final { display: flex; align-items: baseline; gap: 12px; margin: 22px 0 4px; color: var(--mut); }
+.nota-final b { font: 700 36px/1 var(--fonte-titulo); color: var(--ambar); }
+
+/* ==========================================================================
+   TELA: TelaDePerfil
+   ========================================================================== */
+.demo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  border: 1px dashed #3c6350;
+  border-radius: 12px;
+  font-size: 13.5px;
+  color: var(--mut);
+}
+.demo span { margin-right: 4px; }
+.demo button {
+  padding: 5px 14px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mut);
+  transition: background .15s, color .15s, border-color .15s;
+}
+.demo button:hover { border-color: var(--g); color: var(--ink); }
+.demo button[aria-pressed="true"] { background: var(--g); border-color: var(--g); color: #0b1812; }
+
+.perfil { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+.perfil-lateral { position: sticky; top: calc(88px + env(safe-area-inset-top, 0px)); display: grid; gap: 16px; }
+.perfil-lateral h1 { font-size: 24px; margin: 0 0 10px; }
+.perfil-conteudo { display: grid; gap: 16px; min-width: 0; }
+
+.secao-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+.secao-topo h2 { margin: 0; }
+
+/* Lista de dados (rótulo em cima, valor embaixo) */
+.dados { margin: 18px 0 0; }
+.dados div { padding: 11px 0; border-top: 1px solid var(--line); }
+.dados.sem-topo { margin: 0; }
+.dados.sem-topo div:first-child { border-top: 0; padding-top: 0; }
+.dados dt { font-size: 12.5px; color: var(--mut); margin-bottom: 2px; }
+.dados dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+.dados a { color: var(--g); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Credencial */
+.credencial { text-align: center; }
+.credencial h2 { text-align: left; }
+.credencial .qr { margin: 4px auto 14px; }
+.codigo { font: 700 20px var(--fonte-titulo); letter-spacing: .06em; margin: 0 0 10px; }
+
+/* Gestão da equipe (só responsável) */
+.gestao { border-left: 3px solid var(--g); }
+.acoes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.acao {
+  text-align: left;
+  padding: 16px;
+  background: var(--inset);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  transition: border-color .15s, transform .15s;
+}
+.acao:hover { border-color: var(--g); transform: translateY(-2px); }
+.acao b { display: block; font-weight: 600; margin-bottom: 4px; }
+
+@media (max-width: 860px) {
+  .perfil { grid-template-columns: 1fr; }
+  .perfil-lateral { position: static; }
+  .acoes { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   MOVIMENTO REDUZIDO (para quem prefere menos animação no sistema)
+   Sem animação, o fluxo aparece já desenhado.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
